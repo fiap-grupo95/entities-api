@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mockoon-config
+  namespace: entities-api
+data:
+  entities-api-mock.json: |
+    {
+      "uuid": "d3f0af24-0f45-4f67-b2be-e1f9e8bc09b2",
+      "lastMigration": 33,
+      "name": "Entities API Mock",
+      "endpointPrefix": "",
+      "latency": 0,
+      "port": 8083,
+      "hostname": "",
+      "folders": [],
+      "routes": [
+        {
+          "uuid": "f57ef6df-1be7-48b3-baf7-2f5e818d5598",
+          "type": "http",
+          "method": "get",
+          "endpoint": "v1/ping",
+          "responses": [
+            {
+              "uuid": "6d7e4a2a-d8a5-4c0f-8512-f648983b8c65",
+              "body": "{\n  \"message\": \"pong\"\n}",
+              "statusCode": 200,
+              "headers": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "bodyType": "INLINE",
+              "default": true
+            }
+          ]
+        }
+      ]
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mockoon
+  namespace: entities-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mockoon
+  template:
+    metadata:
+      labels:
+        app: mockoon
+    spec:
+      containers:
+        - name: mockoon
+          image: mockoon/cli:latest
+          args: ["--data", "/data/entities-api-mock.json", "--port", "8083", "--hostname", "0.0.0.0"]
+          ports:
+            - containerPort: 8083
+          volumeMounts:
+            - name: mockoon-data
+              mountPath: /data
+      volumes:
+        - name: mockoon-data
+          configMap:
+            name: mockoon-config
+            items:
+              - key: entities-api-mock.json
+                path: entities-api-mock.json
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mockoon
+  namespace: entities-api
+spec:
+  selector:
+    app: mockoon
+  ports:
+    - name: http
+      port: 8083
+      targetPort: 8083
+  type: ClusterIP

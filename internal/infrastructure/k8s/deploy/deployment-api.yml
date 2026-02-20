@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: entities-api-deployment
+  namespace: entities-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: entities-api
+  template:
+    metadata:
+      labels:
+        app: entities-api
+      annotations:
+        newrelic.com/integrations: "true"
+    spec:
+      containers:
+        - name: entities-api
+          image: mandaapag03/entities-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "300m"
+          envFrom:
+            - secretRef:
+                name: app-secret
+            - configMapRef:
+                name: app-config
