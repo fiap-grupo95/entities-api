@@ -1,0 +1,547 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: entity-api-localhost
+meta:
+  id: wrk_1f2c3e4a5b6d7f8091a2b3c4d5e6f701
+  created: 1771470000000
+  modified: 1771470000000
+  description: Entity API routes for localhost:8080
+collection:
+  - url: "{{ _.url }}/v1/login"
+    name: Get Token
+    meta:
+      id: req_00000000000000000000000000000001
+      created: 1771470000001
+      modified: 1771470000001
+      isPrivate: false
+      description: ""
+      sortKey: -100
+    method: POST
+    body:
+      mimeType: application/json
+      text: '{"email":"admin@xpto.com", "password":"Q1w2e3r%"}'
+    headers:
+      - name: Content-Type
+        value: application/json
+    scripts:
+      afterResponse: |+
+        const jsonBody = insomnia.response.json();
+
+        if (jsonBody.token) {
+          insomnia.environment.set("token", jsonBody.token);
+        }
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+
+  - name: parts-supply
+    meta:
+      id: fld_00000000000000000000000000000011
+      created: 1771470000011
+      modified: 1771470000011
+      sortKey: -90
+      description: ""
+    children:
+      - url: "{{ _.url }}/v1/parts-supply"
+        name: Get All Parts Supply
+        meta:
+          id: req_00000000000000000000000000000011
+          created: 1771470000010
+          modified: 1771470000010
+          isPrivate: false
+          description: ""
+          sortKey: -90
+        method: GET
+        authentication:
+          type: bearer
+          token: "{{ _.token }}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.url }}/v1/parts-supply/{{ _.parts_supply_id }}"
+        name: Get Parts Supply by ID
+        meta:
+          id: req_00000000000000000000000000000012
+          created: 1771470000012
+          modified: 1771470000012
+          isPrivate: false
+          description: ""
+          sortKey: -89
+        method: GET
+        authentication:
+          type: bearer
+          token: "{{ _.token }}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.url }}/v1/parts-supply/authorize-reserve"
+        name: Authorize Reserve
+        meta:
+          id: req_00000000000000000000000000000013
+          created: 1771470000013
+          modified: 1771470000013
+          isPrivate: false
+          description: ""
+          sortKey: -88
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            [
+              { "id": "{{ _.parts_supply_id }}", "quantity": 2 }
+            ]
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          token: "{{ _.token }}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.url }}/v1/parts-supply/reserve"
+        name: Reserve
+        meta:
+          id: req_00000000000000000000000000000014
+          created: 1771470000014
+          modified: 1771470000014
+          isPrivate: false
+          description: ""
+          sortKey: -87
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            [
+              { "id": "{{ _.parts_supply_id }}", "quantity": 2 }
+            ]
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          token: "{{ _.token }}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.url }}/v1/parts-supply/release"
+        name: Release
+        meta:
+          id: req_00000000000000000000000000000015
+          created: 1771470000015
+          modified: 1771470000015
+          isPrivate: false
+          description: ""
+          sortKey: -86
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            [
+              { "id": "{{ _.parts_supply_id }}", "quantity": 2 }
+            ]
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          token: "{{ _.token }}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.url }}/v1/parts-supply/writeoff"
+        name: WriteOff
+        meta:
+          id: req_00000000000000000000000000000016
+          created: 1771470000016
+          modified: 1771470000016
+          isPrivate: false
+          description: ""
+          sortKey: -85
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            [
+              { "id": "{{ _.parts_supply_id }}", "quantity": 2 }
+            ]
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          token: "{{ _.token }}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.url }}/v1/parts-supply"
+        name: Create Parts Supply
+        meta:
+          id: req_00000000000000000000000000000017
+          created: 1771470000017
+          modified: 1771470000017
+          isPrivate: false
+          description: ""
+          sortKey: -84
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "name": "Pneu Aro 17",
+              "description": "Pneu esportivo",
+              "price": 250.0,
+              "quantity_total": 100
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          token: "{{ _.token }}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.url }}/v1/parts-supply/{{ _.parts_supply_id }}"
+        name: Update Parts Supply
+        meta:
+          id: req_00000000000000000000000000000018
+          created: 1771470000018
+          modified: 1771470000018
+          isPrivate: false
+          description: ""
+          sortKey: -83
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+              "name": "Pneu Aro 17 Atualizado",
+              "description": "Pneu esportivo atualizado",
+              "price": 275.0,
+              "quantity_total": 120,
+              "quantity_reserve": 0
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+        authentication:
+          type: bearer
+          token: "{{ _.token }}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.url }}/v1/parts-supply/{{ _.parts_supply_id }}"
+        name: Delete Parts Supply
+        meta:
+          id: req_00000000000000000000000000000019
+          created: 1771470000019
+          modified: 1771470000019
+          isPrivate: false
+          description: ""
+          sortKey: -82
+        method: DELETE
+        authentication:
+          type: bearer
+          token: "{{ _.token }}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+  - name: service
+    meta:
+      id: fld_00000000000000000000000000000021
+      created: 1771470000021
+      modified: 1771470000021
+      sortKey: -80
+      description: ""
+    children:
+      - url: "{{ _.url }}/v1/service/{{ _.service_id }}"
+        name: Get Service by ID
+        meta:
+          id: req_00000000000000000000000000000022
+          created: 1771470000022
+          modified: 1771470000022
+          isPrivate: false
+          description: ""
+          sortKey: -79
+        method: GET
+        authentication:
+          type: bearer
+          token: "{{ _.token }}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+  - name: vehicles
+    meta:
+      id: fld_00000000000000000000000000000031
+      created: 1771470000031
+      modified: 1771470000031
+      sortKey: -70
+      description: ""
+    children:
+      - url: "{{ _.url }}/v1/vehicles"
+        name: List Vehicles
+        meta:
+          id: req_00000000000000000000000000000032
+          created: 1771470000032
+          modified: 1771470000032
+          isPrivate: false
+          description: ""
+          sortKey: -69
+        method: GET
+        authentication:
+          type: bearer
+          token: "{{ _.token }}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.url }}/v1/vehicles/{{ _.vehicle_id }}"
+        name: Get Vehicle by ID
+        meta:
+          id: req_00000000000000000000000000000033
+          created: 1771470000033
+          modified: 1771470000033
+          isPrivate: false
+          description: ""
+          sortKey: -68
+        method: GET
+        authentication:
+          type: bearer
+          token: "{{ _.token }}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.url }}/v1/vehicles/plate/{{ _.plate }}"
+        name: Get Vehicle by Plate
+        meta:
+          id: req_00000000000000000000000000000034
+          created: 1771470000034
+          modified: 1771470000034
+          isPrivate: false
+          description: ""
+          sortKey: -67
+        method: GET
+        authentication:
+          type: bearer
+          token: "{{ _.token }}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.url }}/v1/vehicles/customer/{{ _.customer_id }}"
+        name: Get Vehicles by Customer
+        meta:
+          id: req_00000000000000000000000000000035
+          created: 1771470000035
+          modified: 1771470000035
+          isPrivate: false
+          description: ""
+          sortKey: -66
+        method: GET
+        authentication:
+          type: bearer
+          token: "{{ _.token }}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+  - name: customers
+    meta:
+      id: fld_00000000000000000000000000000041
+      created: 1771470000041
+      modified: 1771470000041
+      sortKey: -60
+      description: ""
+    children:
+      - url: "{{ _.url }}/v1/customers"
+        name: List Customers
+        meta:
+          id: req_00000000000000000000000000000042
+          created: 1771470000042
+          modified: 1771470000042
+          isPrivate: false
+          description: ""
+          sortKey: -59
+        method: GET
+        authentication:
+          type: bearer
+          token: "{{ _.token }}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.url }}/v1/customers/{{ _.customer_id }}"
+        name: Get Customer by ID
+        meta:
+          id: req_00000000000000000000000000000043
+          created: 1771470000043
+          modified: 1771470000043
+          isPrivate: false
+          description: ""
+          sortKey: -58
+        method: GET
+        authentication:
+          type: bearer
+          token: "{{ _.token }}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+      - url: "{{ _.url }}/v1/customers/document/{{ _.document }}"
+        name: Get Customer by Document
+        meta:
+          id: req_00000000000000000000000000000044
+          created: 1771470000044
+          modified: 1771470000044
+          isPrivate: false
+          description: ""
+          sortKey: -57
+        method: GET
+        authentication:
+          type: bearer
+          token: "{{ _.token }}"
+          prefix: Bearer
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_00000000000000000000000000000001
+    created: 1771470000050
+    modified: 1771470000050
+environments:
+  name: Base Environment
+  meta:
+    id: env_00000000000000000000000000000001
+    created: 1771470000051
+    modified: 1771470000051
+    isPrivate: false
+  data:
+    url: http://localhost:8080
+    token: ""
+    parts_supply_id: "1"
+    service_id: "1"
+    vehicle_id: "1"
+    customer_id: "1"
+    plate: ABC1D23
+    document: "74381996062"
