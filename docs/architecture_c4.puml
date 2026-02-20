@@ -1,0 +1,113 @@
+@startuml C4_Context
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_WITH_LEGEND()
+
+Person(serviceAdvisor, "Service Advisor", "Profissional da oficina que abre ordens de servico e acompanha execucao.")
+Person(backOffice, "Gestor Administrativo", "Analisa faturamento, pendencias e aprova reparos adicionais.")
+Person(devOps, "DevOps Engineer", "Mantem infraestrutura, roda migracoes e seeds.")
+
+System_Ext(opsPortal, "Portal Operacional", "Aplicacao web/mobile", "Frontend corporativo que consome a API.")
+System_Ext(biSystem, "BI Corporativo", "Ferramenta de analytics", "Consome exportacoes para relatorios gerenciais.")
+
+System_Boundary(mecanica, "Plataforma Mecanica XPTO") {
+    System(api, "Mecanica XPTO API", "Go (Gin)", "Expoe endpoints REST para autenticacao, cadastro de clientes, veiculos, ordens, pagamentos e reparos adicionais.")
+    System(cliTool, "Ferramenta CLI Operacional", "Go", "Executa migracoes, seeds e tarefas administrativas (cmd/api, cmd/migrate).")
+    System_Ext(postgres, "PostgreSQL", "PostgreSQL 17", "Banco relacional com dados operacionais.")
+}
+
+Rel(serviceAdvisor, opsPortal, "Opera processos de oficina via", "HTTPS")
+Rel(backOffice, opsPortal, "Consulta indicadores e autoriza", "HTTPS")
+Rel(opsPortal, api, "Consome API REST", "JSON/HTTPS")
+Rel(serviceAdvisor, api, "Acessa Swagger para referencias", "HTTP")
+Rel(api, postgres, "Le e grava dados de negocio", "GORM/SQL")
+Rel(cliTool, postgres, "Executa migracoes e seeds", "GORM/SQL")
+Rel(backOffice, api, "Aprova reparos e pagamentos", "HTTPS")
+Rel(devOps, cliTool, "Dispara rotinas de manutencao", "CLI")
+Rel(api, biSystem, "Disponibiliza exports e integracoes", "CSV/REST")
+
+@enduml
+
+@startuml C4_Container
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+Person(serviceAdvisor, "Service Advisor", "Profissional da oficina que abre ordens de servico e acompanha execucao.")
+Person(backOffice, "Gestor Administrativo", "Analisa faturamento, pendencias e aprova reparos adicionais.")
+Person(devOps, "DevOps Engineer", "Mantem infraestrutura, roda migracoes e seeds.")
+System_Ext(opsPortal, "Portal Operacional", "Aplicacao web/mobile", "Frontend corporativo que consome a API.")
+System_Ext(biSystem, "BI Corporativo", "Ferramenta de analytics", "Consome exportacoes para relatorios gerenciais.")
+
+System_Boundary(mecanica, "Plataforma Mecanica XPTO") {
+    Container(apiService, "API Service", "Go (Gin)", "Servidor HTTP com middlewares, autenticacao JWT, validacao e roteamento dos casos de uso.")
+    Container(jobRunner, "Ops CLI / Job Runner", "Go", "Executavel cmd/api que dispara migracoes (migrate), seeds (seed) e tarefas pontuais.")
+    ContainerDb(relDb, "Banco Operacional", "PostgreSQL 17", "Persistencia de clientes, veiculos, ordens, pagamentos e reparos.")
+    Container(sonar, "SonarQube", "Docker SonarQube", "Instancia opcional para analise estatica em pipelines.")
+}
+
+Rel(serviceAdvisor, opsPortal, "Opera rotina", "HTTPS")
+Rel(backOffice, opsPortal, "Consulta dashboards", "HTTPS")
+Rel(opsPortal, apiService, "Chama endpoints REST", "JSON/HTTPS")
+Rel(serviceAdvisor, apiService, "Consulta documentacao Swagger", "HTTP")
+Rel(apiService, relDb, "CRUD de entidades", "GORM/SQL")
+Rel(apiService, sonar, "Publica metricas de qualidade (opcional)", "HTTP")
+Rel(jobRunner, relDb, "Executa migracoes e seeds", "GORM/SQL")
+Rel(devOps, jobRunner, "Executa scripts de manutencao", "CLI")
+Rel(apiService, biSystem, "Exporta dados operacionais", "CSV/REST")
+
+@enduml
+
+@startuml C4_Component
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+Container_Boundary(apiService, "API Service (Go/Gin)") {
+    Component(routes, "Routes", "internal/adapter/http/routes", "Registra grupos de rotas, injeta middlewares e configura Swagger.")
+    Component(middleware, "Middleware", "internal/adapter/http/middleware", "Autenticacao JWT, confianca de proxy, log e panic recovery.")
+    Component(handlers, "HTTP Handlers", "internal/adapter/http/handlers", "Valida payloads, converte DTOs e retorna respostas padronizadas.")
+    Component(dtoReq, "DTO Requests/Responses", "internal/adapter/http/dto", "Estruturas de entrada/saida para a camada HTTP.")
+    Component(useCases, "Use Cases", "internal/usecase", "Regras de negocio e orquestracao de processos de oficina.")
+    Component(domain, "Domain Entities & VOs", "internal/domain", "Modelos ricos: clientes, veiculos, ordens, pagamentos, reparos adicionais.")
+    Component(persistence, "Persistence Repositories", "internal/adapter/persistence/repository", "Implementacoes GORM das interfaces de acesso a dados.")
+    Component(dbInfra, "Database Infra", "internal/infrastructure/database", "Configuracao de conexao, migracoes, seeders e modelos GORM.")
+    Component(auth, "JWT Utilities", "pkg/utils", "Carrega configuracao JWT, gera e valida tokens de acesso.")
+    Component(commonPkg, "Shared Errors & Utils", "pkg", "Modela erros de dominio/infra e helpers reutilizados.")
+}
+
+ContainerDb(relDb, "Banco Operacional", "PostgreSQL 17", "Persistencia de dados operacionais.")
+
+Rel(routes, middleware, "Aplica cadeia de middlewares")
+Rel(routes, handlers, "Delegacao de handlers")
+Rel(handlers, dtoReq, "Usa DTOs para binding")
+Rel(handlers, useCases, "Aciona regras de negocio", "Interfaces go")
+Rel(useCases, domain, "Manipula entidades e valores")
+Rel(useCases, persistence, "Solicita persistencia", "Interfaces Repository")
+Rel(persistence, dbInfra, "Reutiliza configuracao e modelos", "GORM")
+Rel(persistence, relDb, "Executa queries", "SQL")
+Rel(handlers, auth, "Gera/valida tokens", "JWT")
+Rel(useCases, auth, "Valida credenciais", "JWT")
+Rel(handlers, commonPkg, "Padroniza erros e respostas")
+Rel(useCases, commonPkg, "Propaga erros de negocio")
+
+@enduml
+
+@startuml C4_Component_CLI
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+Container_Boundary(jobRunner, "Ops CLI / Job Runner (Go)") {
+    Component(cliEntry, "cmd/api", "cmd/api/main.go", "Ponto de entrada: inicia API ou opera comandos migrate/seed.")
+    Component(migrateCmd, "cmd/migrate", "cmd/migrate/main.go", "Executa rotinas dedicadas de migracao.")
+    Component(dbInfraCli, "Database Infra", "internal/infrastructure/database", "Reutiliza configuracao, migracoes e seeds.")
+}
+
+ContainerDb(relDb, "Banco Operacional", "PostgreSQL 17", "Persistencia de dados operacionais.")
+
+Rel(cliEntry, dbInfraCli, "Inicia conexao e executa tarefas")
+Rel(migrateCmd, dbInfraCli, "Executa migracoes e seeds")
+Rel(dbInfraCli, relDb, "Aplica scripts", "SQL")
+
+@enduml

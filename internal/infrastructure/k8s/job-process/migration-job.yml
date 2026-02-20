@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: migration-job
+  namespace: entities-api
+spec:
+  backoffLimit: 4
+  ttlSecondsAfterFinished: 600
+  template:
+    spec:
+      containers:
+        - name: migration
+          image: mandaapag03/entities-api:latest
+          command: ["./mecanica-xpto-migrate"]
+          envFrom:
+            - secretRef:
+                name: app-secret
+            - configMapRef:
+                name: app-config
+      restartPolicy: OnFailure
